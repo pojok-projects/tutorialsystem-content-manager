@@ -9,7 +9,7 @@ See Red highlight below for the scope of this repository.
 ![RESTAPI.jpg](images/Content_Manager_highlight.png)
 
 ## API END POINT
-* TODO
+* http://example.com/v1/category
 
 ## API Docs
 * TODO
@@ -17,7 +17,18 @@ See Red highlight below for the scope of this repository.
 ## Table Structure End Points
 | URL                            | Method | INFO              |
 | ------------------------------ | ------ | ----------------- |
-| `TODO`                         | TODO   | TODO              |
+| `list`                         | GET    | get all category  |
+| ------------------------------ | ------ | ----------------- |
+| `list/{id}`                    | GET    | get videos by     |
+|                                |        | category id       |
+| ------------------------------ | ------ | ----------------- |
+| `search_videos`                | POST   | search videos by  |
+|                                |        | title             |
+| ------------------------------ | ------ | ----------------- |
+| `search_videos/{genre}`        | GET    | search videos by  |
+|                                |        | genre             |
+| ------------------------------ | ------ | ----------------- |
+
 
 
 ## Example screen shots of API invocations
