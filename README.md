@@ -15,19 +15,12 @@ See Red highlight below for the scope of this repository.
 * TODO
 
 ## Table Structure End Points
-| URL                            | Method | INFO              |
-| ------------------------------ | ------ | ----------------- |
-| `list`                         | GET    | get all category  |
-| ------------------------------ | ------ | ----------------- |
-| `list/{id}`                    | GET    | get videos by     |
-|                                |        | category id       |
-| ------------------------------ | ------ | ----------------- |
-| `search_videos`                | POST   | search videos by  |
-|                                |        | title             |
-| ------------------------------ | ------ | ----------------- |
-| `search_videos/{genre}`        | GET    | search videos by  |
-|                                |        | genre             |
-| ------------------------------ | ------ | ----------------- |
+| URL                            | Method | INFO                         |
+| ------------------------------ | ------ | ---------------------------- |
+| `list`                         | GET    | get all category             |
+| `list/{id}`                    | GET    | get videos by category id    |
+| `search_videos`                | POST   | search videos by video title |
+| `search_videos/{genre}`        | GET    | search videos by genre       |
 
 
 
