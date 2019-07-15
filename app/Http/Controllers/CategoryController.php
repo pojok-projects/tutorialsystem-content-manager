@@ -17,20 +17,22 @@ class CategoryController extends Controller
 
     public function list($id = null)
     {
+        $endpoint = env('ENDPOINT_API');
+
         if (is_null($id)) {
-            $result = $this->client->request('GET', 'http://private-anon-4dd6595d8c-dbil.apiary-mock.com/content/category');
+            $result = $this->client->request('GET', $endpoint . 'content/category');
             if ($result->getStatusCode() != 200) {
                 return response()->json([
                     'status' => [
-                        'code' => '500',
+                        'code' => $result->getStatusCode(),
                         'message' => 'Bad Gateway',
                     ]
-                ], 500);
+                ], $result->getStatusCode());
             } else {
                 return response()->json(json_decode($result->getBody(), true), 200);
             }
         } else {
-            $content = $this->client->request('GET', 'http://private-2e0bb9-dbil.apiary-mock.com/content/metadata');
+            $content = $this->client->request('GET', $endpoint . 'content/metadata');
             if ($content->getStatusCode() != 200) {
                 return response()->json([
                     'status' => [
