@@ -15,22 +15,56 @@ class CategoryController extends Controller
         $this->client = new Client();
     }
 
+    private function validator($content, $id)
+    {
+        $data = json_decode($content->getBody(), true);
+        $code = $content->getStatusCode();
+        if ($code == 404) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Not Found'
+            ], 404);
+        } else {
+            if ($code != 200) {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Bad Geteway'
+                ], 500);
+            }
+        }
+        $data = ($data['result']);
+        $i = 0;
+        $result = null;
+        foreach ($data as $d) {
+            if (isset($d['category_id'])) {
+                if ($d['category_id'] == $id) {
+                    $result[$i] = $d;
+                    $i++;
+                }
+            }
+        }
+        //haha
+        if (is_null($result)) {
+            return response()->json([
+                'message' => 'Not Found',
+                'code' => 404
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => [
+                'code' => 200,
+                'message' => 'earch query has been performed, data has been found',
+                'total' => count($result)
+            ],
+            'result' => $result
+        ], 200);
+    }
+
     public function list($id = null)
     {
         if (is_null($id)) {
-            $result = $this->client->request('GET', 'http://private-anon-4dd6595d8c-dbil.apiary-mock.com/content/category');
-            if ($result->getStatusCode() != 200) {
-                return response()->json([
-                    'status' => [
-                        'code' => '500',
-                        'message' => 'Bad Gateway',
-                    ]
-                ], 500);
-            } else {
-                return response()->json(json_decode($result->getBody(), true), 200);
-            }
-        } else {
-            $content = $this->client->request('GET', 'http://private-2e0bb9-dbil.apiary-mock.com/content/metadata');
+            $content = $this->client->request('GET', env('ENDPOINT_API') . 'content/category');
             if ($content->getStatusCode() != 200) {
                 return response()->json([
                     'status' => [
@@ -38,84 +72,80 @@ class CategoryController extends Controller
                         'message' => 'Bad Gateway',
                     ]
                 ], 500);
+            } else {
+                return response()->json(json_decode($content->getBody(), true), 200);
             }
-            $data = json_decode($content->getBody(), true);
-            $data = ($data['result']);
-            $i = 0;
-            $kode = null;
-            foreach ($data as $d) {
-                if ($d['category_id'] == $id) {
-                    $kode[$i] = $d;
-                    $i++;
-                }
-            }
+        } else {
+            $content = $this->client->request('GET', env('ENDPOINT_API') . 'content/metadata');
 
-            if (is_null($kode)) {
-                return response()->json([
-                    'status' => [
-                        'code' => '404',
-                        'message' => 'Not Found',
-                    ]
-                ], 404);
-            }
+            $result = $this->validator($content, $id);
 
-            return response()->json($kode, 200);
+            return $result;
         }
     }
 
-    public function search_videos(Request $request, $genre = null)
+    public function search_videos(Request $request)
     {
-        if (is_null($genre)) {
-            $aturan = [
-                'title' => 'required'
+
+        if (isset($request->title) && !isset($request->genre)) {
+            $rules = [
+                'title' => 'required',
+                'category_id' => 'required'
             ];
-            $pesan = [
+            $message = [
                 'required' => 'Please Fill Attribute :attribut'
             ];
-            $this->validate($request, $aturan, $pesan);
+            $this->validate($request, $rules, $message);
 
-            $data = $this->client->request('POST', 'http://private-2e0bb9-dbil.apiary-mock.com/content/metadata/search', [
+            $data = $this->client->request('POST', env('ENDPOINT_API') . 'content/metadata/search', [
                 'query' => urlencode('"video_title=' . $request->title . '"')
             ]);
-            if ($data->getStatusCode() != 200) {
-                return response()->json([
-                    'code' => '500',
-                    'message' => 'Bad Gateway'
-                ], 500);
-            }
 
-            $result = json_decode($data->getBody(), true);
+            $result = $this->validator($data, $request->category_id);
 
-            if ($result['status']['total'] < 1) {
-                return response()->json([
-                    'code' => '404',
-                    'message' => 'Not found'
-                ], 404);
-            }
+            return $result;
+        } elseif (isset($request->genre) && !isset($request->title)) {
+            $rules = [
+                'genre' => 'required',
+                'category_id' => 'required'
+            ];
+            $message = [
+                'required' => 'Please Fill Attribute :attribut'
+            ];
+            $this->validate($request, $rules, $message);
 
-            return response()->json($result, 200);
-        } else {
-            $data = $this->client->request('POST', 'http://private-2e0bb9-dbil.apiary-mock.com/content/metadata/search', [
-                'query' => urlencode('"video_genre=' . $genre . '"')
+            $content = $this->client->request('POST', env('ENDPOINT_API') . 'content/metadata/search', [
+                'query' => urlencode('"video_genre=' . $request->genre . '"')
             ]);
 
-            if ($data->getStatusCode() != 200) {
-                return response()->json([
-                    'code' => '500',
-                    'message' => 'Bad Gateway'
-                ], 500);
-            }
 
-            $result = json_decode($data->getBody(), true);
+            $result = $this->validator($content, $request->category_id);
 
-            if ($result['status']['total'] < 1) {
-                return response()->json([
-                    'code' => '404',
-                    'message' => 'Not found'
-                ], 404);
-            }
+            return $result;
+        } elseif (isset($request->title) && isset($request->genre)) {
+            $rules = [
+                'genre' => 'required',
+                'title' => 'required',
+                'category_id' => 'required'
+            ];
+            $message = [
+                'required' => 'Please Fill Attribute :attribut'
+            ];
+            $this->validate($request, $rules, $message);
 
-            return response()->json($result, 200);
+            $content = $this->client->request('POST', env('ENDPOINT_API') . 'content/metadata/search', [
+                'query' => urlencode('"video_title=' . $request->title . ',video_genre=' . $request->genre . '"')
+            ]);
+
+
+            $result = $this->validator($content, $request->category_id);
+
+            return $result;
+        } else {
+            return response()->json([
+                'message' => 'Bad Request',
+                'code' => 400
+            ], 400);
         }
     }
 }
