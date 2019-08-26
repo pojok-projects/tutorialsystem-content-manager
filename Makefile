@@ -15,7 +15,7 @@ SolutionNaming=${SolutionNamingBase}-${branch}
 
 Locale=cicd
 BRANCH_NAME=$(shell git rev-parse --abbrev-ref HEAD)
-RepositoyName=tutorialsystem-database-interface-layer
+RepositoyName=tutorialsystem-content-manager
 SlackChannel=
 SlackURL=
 SlackIcon=
