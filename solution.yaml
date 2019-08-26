@@ -69,7 +69,7 @@ Resources:
         Type: AWS::IAM::Role
         Properties:
             Path: '/service/'
-            RoleName: !Sub '${pSolutionNaming}-${AWS::Region}-dbil-role'
+            RoleName: !Sub '${pSolutionNaming}-${AWS::Region}-conm-role'
             AssumeRolePolicyDocument:
                 Version: '2012-10-17'
                 Statement:
@@ -145,7 +145,7 @@ Resources:
         Type: AWS::ApiGateway::RestApi
         Properties:
             Name: !Sub '${pSolutionNaming}-api-gateway'
-            Description: Tutorial System DBIL - API Rest Gateway
+            Description: Tutorial System CONM - API Rest Gateway
             FailOnWarnings: true
             EndpointConfiguration:
                 Types:
