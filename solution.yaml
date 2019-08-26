@@ -1,0 +1,227 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: 'Tutorial System - Content Manager'
+
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+    pSolutionNaming:
+        Type: String
+
+    # pDynamoDBKey:
+    #     Type: 'AWS::SSM::Parameter::Value<String>'
+    #     Default: DYNAMODB_KEY
+
+    # pDynamoDBSecret:
+    #     Type: 'AWS::SSM::Parameter::Value<String>'
+    #     Default: DYNAMODB_SECRET
+
+Resources:
+    rCommonPolicyForLambdas:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            Description: Policy allowing log stream access, vpc config and xray config
+            Path: !Sub '/service/'
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: Allow
+                      Action:
+                          - logs:CreateLogGroup
+                          - logs:CreateLogStream
+                          - logs:PutLogEvents
+                      Resource: arn:aws:logs:*:*:*
+                    - Effect: Allow
+                      Action:
+                          - ec2:CreateNetworkInterface
+                          - ec2:DescribeNetworkInterfaces
+                          - ec2:DescribeNetworkInterface
+                          - ec2:DeleteNetworkInterface
+                          - ec2:DescribeVpcEndpoints
+                      Resource: '*'
+                    - Effect: Allow
+                      Action:
+                          - xray:PutTraceSegments
+                          - xray:PutTelemetryRecords
+                          - xray:GetSamplingRules
+                          - xray:GetSamplingTargets
+                          - xray:GetSamplingStatisticSummaries
+                      Resource: '*'
+                    - Effect: Allow
+                      Action:
+                          - kms:GenerateDataKey
+                          - kms:Decrypt
+                      Resource: '*'
+                    - Effect: Allow
+                      Action:
+                          - dynamodb:DescribeStream
+                          - dynamodb:GetRecords
+                          - dynamodb:GetShardIterator
+                          - dynamodb:GetItem
+                          - dynamodb:ListStreams
+                          - dynamodb:Query
+                          - dynamodb:Scan
+                          - dynamodb:DescribeTable
+                          - dynamodb:PutItem
+                      Resource: '*'
+
+    rConmLambdaExecutionRole:
+        Type: AWS::IAM::Role
+        Properties:
+            Path: '/service/'
+            RoleName: !Sub '${pSolutionNaming}-${AWS::Region}-dbil-role'
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service:
+                              - lambda.amazonaws.com
+                      Action:
+                          - sts:AssumeRole
+            ManagedPolicyArns:
+                - !Ref rCommonPolicyForLambdas
+
+    rConmLambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: !Sub '${pSolutionNaming}-lambda'
+            Description: Database Interface Layer - Lambda
+            Runtime: provided
+            Role: !Sub ${rConmLambdaExecutionRole.Arn}
+            Handler: public/index.php
+            MemorySize: 512
+            Timeout: 30
+            TracingConfig:
+                Mode: Active
+            Layers:
+                - arn:aws:lambda:ap-southeast-1:887080169480:layer:php73:3
+            Environment:
+                Variables:
+                    LOG_CHANNEL: stderr
+                    # DYNAMODB_REGION: ap-southeast-1
+                    # DYNAMODB_KEY: !Sub ${pDynamoDBKey}
+                    # DYNAMODB_SECRET: !Sub ${pDynamoDBSecret}
+
+    rApiGatewayRole:
+        Type: AWS::IAM::Role
+        Properties:
+            Path: /service/
+            RoleName: !Sub '${pSolutionNaming}-api-gateway-role'
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service:
+                              - apigateway.amazonaws.com
+                      Action:
+                          - sts:AssumeRole
+            Policies:
+                - PolicyName: !Sub '${pSolutionNaming}-api-gateway-policy'
+                  PolicyDocument:
+                      Version: '2012-10-17'
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - logs:CreateLogGroup
+                                - logs:CreateLogStream
+                                - logs:DescribeLogGroups
+                                - logs:DescribeLogStreams
+                                - logs:PutLogEvents
+                                - logs:GetLogEvents
+                                - logs:FilterLogEvents
+                            Resource: '*'
+                - PolicyName: !Sub '${pSolutionNaming}-api-lambda-invoke-lambda-iam-policy'
+                  PolicyDocument:
+                      Version: '2012-10-17'
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - lambda:InvokeFunction
+                            Resource: arn:aws:lambda:*:*:function:*
+
+    rApiGateway:
+        Type: AWS::ApiGateway::RestApi
+        Properties:
+            Name: !Sub '${pSolutionNaming}-api-gateway'
+            Description: Tutorial System DBIL - API Rest Gateway
+            FailOnWarnings: true
+            EndpointConfiguration:
+                Types:
+                    - REGIONAL
+
+    rApiGatewayLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:invokeFunction
+            FunctionName: !Sub ${rConmLambda.Arn}
+            Principal: apigateway.amazonaws.com
+            SourceArn: !Sub
+                - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRef}/*
+                - {ApiGatewayRef: !Ref rApiGateway}
+
+    rApiGatewayAccount:
+        Type: AWS::ApiGateway::Account
+        Properties:
+            CloudWatchRoleArn: !Sub ${rApiGatewayRole.Arn}
+
+    rApiProxyGatewayResource:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+            RestApiId: !Ref rApiGateway
+            ParentId: !Sub ${rApiGateway.RootResourceId}
+            PathPart: '{proxy+}'
+
+    rApiProxyAnyHandler:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            ResourceId: !Ref rApiProxyGatewayResource
+            RestApiId: !Ref rApiGateway
+            HttpMethod: ANY
+            ApiKeyRequired: false
+            AuthorizationType: NONE
+            Integration:
+                Type: AWS_PROXY
+                IntegrationHttpMethod: POST
+                Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${rConmLambda.Arn}/invocations'
+            MethodResponses: []
+
+    rApiGatewayResponseDefault4XX:
+        Type: AWS::ApiGateway::GatewayResponse
+        Properties:
+            RestApiId: !Ref rApiGateway
+            ResponseType: DEFAULT_4XX
+            ResponseParameters:
+                gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+                gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+            ResponseTemplates:
+                application/json: '{"code": 403,"errors": {"response": "Invalid or unauthorized access"}}'
+
+    rApiGatewayDeploymentHASHDATE:
+        Type: AWS::ApiGateway::Deployment
+        DependsOn:
+            - rApiProxyAnyHandler
+        Description: Tutorial System CONM - Deployment of API Gateway endpoints
+        Properties:
+            RestApiId: !Ref rApiGateway
+            StageName: !Sub 'mstrStage'
+
+    rApiGatewayStage:
+        Type: AWS::ApiGateway::Stage
+        Properties:
+            StageName: mstr
+            RestApiId: !Ref rApiGateway
+            DeploymentId: !Ref rApiGatewayDeploymentHASHDATE
+            MethodSettings:
+                - ResourcePath: '/*'
+                  HttpMethod: '*'
+                  MetricsEnabled: 'true'
+                  DataTraceEnabled: 'true'
+                  LoggingLevel: INFO
+
+Outputs:
+    oRestApi:
+        Value: !Ref rApiGateway
+        Export:
+            Name: !Sub '${pSolutionNaming}-rest-api'
