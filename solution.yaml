@@ -86,7 +86,7 @@ Resources:
         Type: AWS::Lambda::Function
         Properties:
             FunctionName: !Sub '${pSolutionNaming}-lambda'
-            Description: Database Interface Layer - Lambda
+            Description: Tutorial System Content Manage - Lambda
             Runtime: provided
             Role: !Sub ${rConmLambdaExecutionRole.Arn}
             Handler: public/index.php
