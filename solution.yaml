@@ -8,9 +8,9 @@ Parameters:
     pSolutionNaming:
         Type: String
 
-    # pDynamoDBKey:
-    #     Type: 'AWS::SSM::Parameter::Value<String>'
-    #     Default: DYNAMODB_KEY
+    pEndpointApi:
+        Type: 'AWS::SSM::Parameter::Value<String>'
+        Default: ENDPOINT_API
 
     # pDynamoDBSecret:
     #     Type: 'AWS::SSM::Parameter::Value<String>'
@@ -102,7 +102,7 @@ Resources:
                     # DYNAMODB_REGION: ap-southeast-1
                     # DYNAMODB_KEY: !Sub ${pDynamoDBKey}
                     # DYNAMODB_SECRET: !Sub ${pDynamoDBSecret}
-                    ENDPOINT_API: https://api.tutorialinaja.tech/dbil/v1/
+                    ENDPOINT_API: !Sub ${pEndpointApi}
 
     rApiGatewayRole:
         Type: AWS::IAM::Role
