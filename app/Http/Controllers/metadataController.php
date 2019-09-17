@@ -26,7 +26,7 @@ class metadataController extends Controller
 
     private function cekDuplicate($query)
     {
-        $result = $this->client->request('POST', $this->endpoint . '/content/metadata/search', [
+        $result = $this->client->request('POST', $this->endpoint . 'content/metadata/search', [
             'form_params' => [
                 'query' => urlencode($query)
             ]
@@ -48,7 +48,7 @@ class metadataController extends Controller
 
 
     private function add_data($id, $param) {
-        $result = $this->client->request('GET', $this->endpoint . "/content/metadata/$id");
+        $result = $this->client->request('GET', $this->endpoint . "content/metadata/$id");
         if($result->getStatusCode() != 200) {
             return response()->json([
                 'Message' => 'Bad Gateway'
@@ -57,7 +57,7 @@ class metadataController extends Controller
         $data = json_decode($result->getBody(), true);
         $res = $data[$param] + 1;
 
-        $this->client->request('POST', $this->endpoint . "/content/metadata/update/$id", [
+        $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
             'form_params' => [
                 $param => $res
             ]
@@ -74,11 +74,11 @@ class metadataController extends Controller
     public function index($id = null)
     {
         if(is_null($id)) {
-            $result = $this->client->request('GET', $this->endpoint . '/content/metadata');
+            $result = $this->client->request('GET', $this->endpoint . 'content/metadata');
     
             return $this->response_data($result);
         } else {
-            $result = $this->client->request('GET', $this->endpoint . '/content/metadata/' . $id);
+            $result = $this->client->request('GET', $this->endpoint . 'content/metadata/' . $id);
         
             return $this->response_data($result);
         }
@@ -100,7 +100,7 @@ class metadataController extends Controller
         ];
         $this->validate($request, $rules, $message);
 
-        $result = $this->client->request('POST', $this->endpoint . '/content/metadata/store', [
+        $result = $this->client->request('POST', $this->endpoint . 'content/metadata/store', [
             'form_params' => [
                 'user_id' => $request->user_id,
                 'category_id' => [],
@@ -172,28 +172,21 @@ class metadataController extends Controller
 
     public function update(Request $request, $id)
     {
-        $rules = [
-            'user_id' => 'required',
-            'category_id' => 'required',
-            'video_title' => 'required',
-            'video_description' => 'required',
-            'video_genre' => 'required',
-            'privacy' => 'required'
-        ];
+        $metadata = $this->client->request('GET', $this->endpoint . "content/metadata/$id");
+        $metadata = json_decode($metadata->getBody());
 
-        $message = [
-            'required' => 'Please fill attribute :attribute'
-        ];
-        $this->validate($request, $rules, $message);
+        $video_title = isset($request->video_title) ? $request->video_title : $metadata['video_title'];
+        $video_description = isset($request->video_description) ? $request->video_description : $metadata['video_description'];
+        $video_genre = isset($request->video_genre) ? $request->video_genre : $metadata['video_genre'];
+        $privacy = isset($request->privacy) ? $request->privacy : $metadata['privacy'];
 
-        $result = $this->client->requeset('POST', $this->endpoin . "/content/metadata/update/$id", [
+        $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
             'form_params' => [
-                'user_id' => $request->user_id,
-                'category_id' => $request->category_id,
-                'video_title' => $request->video_title,
-                'video_description' => $request->video_description,
-                'video_genre' => $request->video_genre,
-                'privacy' => $request->privacy
+                'user_id' => $metadata['user_id'],
+                'video_title' => $video_title,
+                'video_description' => $video_description,
+                'video_genre' => $video_genre,
+                'privacy' => $privacy
             ]
         ]);
 
@@ -202,7 +195,7 @@ class metadataController extends Controller
 
     public function delete($id)
     {
-        $result = $this->client->request('POST', $this->endpoint . "/content/metadata/delete/$id");
+        $result = $this->client->request('POST', $this->endpoint . "content/metadata/delete/$id");
 
         return $this->response_data($result);
     }
