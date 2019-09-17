@@ -5,19 +5,10 @@ use GuzzleHttp\Client;
 use function GuzzleHttp\json_decode;
 class ContentCategoryController extends Controller
 {
-    protected $client, $api;
+    protected $client;
     public function __construct()
     {
         $this->client = new Client();
-        $this->api = [
-            'id' => 'fjalgjhlaew',
-            'metavideos' => [],
-            'category' => [
-                'education',
-                'motivation',
-                'program'
-            ]
-        ];
     }
     private function validator($content, $id)
     {
