@@ -33,6 +33,4 @@ $router->group(['prefix' => '/conm/v1/'], function () use($router) {
     $router->get('/save/{id}', 'metadataController@addSave');
     $router->get('/share/{id}', 'metadataController@addShare');
     $router->get('/view/{id}', 'metadataController@addViewer');
-    $router->post('/like/{id}', 'reactController@like');
-    $router->post('/dislike/{id}', 'reactController@dislike');
 });
