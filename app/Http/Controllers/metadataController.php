@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use App\Traits\Duplicate;
 
 class metadataController extends Controller
 {
@@ -14,8 +13,6 @@ class metadataController extends Controller
      */
 
     private $client, $endpoint;
-
-    use Duplicate;
 
     public function __construct()
     {
