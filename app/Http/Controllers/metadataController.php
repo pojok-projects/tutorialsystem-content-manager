@@ -18,7 +18,7 @@ class metadataController extends Controller
     {
         //
         $this->client = new Client();
-        $this->endpoint = env('ENDPOINT');
+        $this->endpoint = env('ENDPOINT_API');
     }
 
     private function cekDuplicate($query)
