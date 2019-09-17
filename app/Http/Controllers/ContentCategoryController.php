@@ -63,25 +63,11 @@ class ContentCategoryController extends Controller
             'result' => $result
         ], 200);
     }
-    public function list($id = null)
+    public function list($id)
     {
-        if (is_null($id)) {
-            $content = $this->client->request('GET', env('ENDPOINT_API') . 'content/category');
-            if ($content->getStatusCode() != 200) {
-                return response()->json([
-                    'status' => [
-                        'code' => '500',
-                        'message' => 'Bad Gateway',
-                    ]
-                ], 500);
-            } else {
-                return response()->json(json_decode($content->getBody(), true), 200);
-            }
-        } else {
-            $content = $this->client->request('GET', env('ENDPOINT_API') . 'content/metadata');
-            $result = $this->validator($content, $id);
-            return $result;
-        }
+        $content = $this->client->request('GET', env('ENDPOINT_API') . 'content/metadata');
+        $result = $this->validator($content, $id);
+        return $result;
     }
     public function search_videos(Request $request)
     {
