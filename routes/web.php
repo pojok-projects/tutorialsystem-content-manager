@@ -15,12 +15,22 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 $router->group(['prefix'=>'/conm/v1/category/'], function() use($router){
-  	$router->get('list', 'CategoryController@list');
-	$router->get('{id}', 'CategoryController@list');
-    	$router->post('search_videos', 'CategoryController@search_videos');
+  	$router->get('list', 'ContentCategoryController@list');
+	$router->get('{id}', 'ContentCategoryController@list');
+    	$router->post('search_videos', 'ContentCategoryController@search_videos');
 });
 
-$router->group(['prefix' => '/conm/v1/'], function() use($router) {
-	$router->post('add', 'MetadataCategory@add');
-	$router->post('remove', 'MetadataCategory@remove');
+$router->group(['prefix' => '/conm/v1/'], function () use($router) {
+    $router->get('/', 'metadataController@index');
+    $router->get('/{id}', 'metadataController@index');
+    $router->post('/store', 'metadataController@store');
+    $router->post('/search', 'metadataController@search');
+    $router->post('/update/{id}', 'metadataController@update');
+    $router->get('/delete/{id}', 'metadataController@delete');
+    $router->get('/download/{id}', 'metadataController@addDownload');
+    $router->get('/save/{id}', 'metadataController@addSave');
+    $router->get('/share/{id}', 'metadataController@addShare');
+    $router->get('/view/{id}', 'metadataController@addViewer');
+    $router->post('/like/{id}', 'reactController@like');
+    $router->post('/dislike/{id}', 'reactController@dislike');
 });
