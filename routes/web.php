@@ -18,6 +18,8 @@ $router->group(['prefix'=>'/conm/v1/category/'], function() use($router){
   	$router->get('list', 'ContentCategoryController@list');
 	$router->get('{id}', 'ContentCategoryController@list');
     	$router->post('search_videos', 'ContentCategoryController@search_videos');
+	$router->post('add', 'ContentCategoryController@add');
+	$router->post('remove', 'ContentCategoryController@remove');
 });
 
 $router->group(['prefix' => '/conm/v1/'], function () use($router) {
