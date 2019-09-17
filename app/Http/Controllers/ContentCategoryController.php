@@ -135,7 +135,7 @@ class ContentCategoryController extends Controller
 
         $this->validate($request, $rules, $message);
 
-        $metadata = $this->client->request('GET', env('ENDPOINT') . "content/metadata/$request->metadata_id");
+        $metadata = $this->client->request('GET', env('ENDPOINT_API') . "content/metadata/$request->metadata_id");
 
         if($metadata->getStatusCode() != 200) {
             return response()->json([
@@ -157,7 +157,7 @@ class ContentCategoryController extends Controller
             }
         }
 
-        $result = $this->client->request('POST', env('ENDPOINT') . "content/metadata/update/$request->metadata_id", [
+        $result = $this->client->request('POST', env('ENDPOINT_API') . "content/metadata/update/$request->metadata_id", [
             'form_params' => [
                 'category_id' => array_merge($category, $request->category)
             ]
