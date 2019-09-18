@@ -9,20 +9,10 @@ See Red highlight below for the scope of this repository.
 ![RESTAPI.jpg](images/Content_Manager_highlight.png)
 
 ## API END POINT
-* http://example.com/v1/category
+* http://tutorialinaja.tech/conm/v1
 
 ## API Docs
-* TODO
-
-## Table Structure End Points
-| URL                            | Method | INFO                         |
-| ------------------------------ | ------ | ---------------------------- |
-| `list`                         | GET    | get all category             |
-| `list/{id}`                    | GET    | get videos by category id    |
-| `search_videos`                | POST   | search videos by video title |
-| `search_videos/{genre}`        | GET    | search videos by genre       |
-
-
+* https://cman.docs.apiary.io/#
 
 ## Example screen shots of API invocations
 
