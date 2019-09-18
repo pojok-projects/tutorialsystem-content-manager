@@ -16,7 +16,7 @@ $router->get('/', function () use ($router) {
 });
 $router->group(['prefix'=>'/conm/v1/category/'], function() use($router){
 	$router->get('{id}', 'ContentCategoryController@list');
-    	$router->post('search_videos', 'ContentCategoryController@search_videos');
+    	$router->post('search', 'ContentCategoryController@search_videos');
 	$router->post('add', 'ContentCategoryController@add');
 	$router->post('remove', 'ContentCategoryController@remove');
 });
