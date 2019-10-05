@@ -18,7 +18,7 @@ class metadataController extends Controller
     {
         //
         $this->client = new Client();
-        $this->endpoint = env('ENDPOINT_API');
+        $this->endpoint = env('ENDPOINT');
     }
 
     private function cekDuplicate($query)
@@ -100,7 +100,7 @@ class metadataController extends Controller
         $result = $this->client->request('POST', $this->endpoint . 'content/metadata/store', [
             'form_params' => [
                 'user_id' => $request->user_id,
-                'category_id' => [],
+                'category_id' => 'null',
                 'video_title' => $request->video_title,
                 'video_description' => $request->video_description,
                 'video_genre' => $request->video_genre,
@@ -170,7 +170,7 @@ class metadataController extends Controller
     public function update(Request $request, $id)
     {
         $metadata = $this->client->request('GET', $this->endpoint . "content/metadata/$id");
-        $metadata = json_decode($metadata->getBody());
+        $metadata = json_decode($metadata->getBody(), true);
 
         $video_title = isset($request->video_title) ? $request->video_title : $metadata['video_title'];
         $video_description = isset($request->video_description) ? $request->video_description : $metadata['video_description'];
