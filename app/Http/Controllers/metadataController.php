@@ -18,7 +18,7 @@ class metadataController extends Controller
     {
         //
         $this->client = new Client();
-        $this->endpoint = env('ENDPOINT');
+        $this->endpoint = env('ENDPOINT_API');
     }
 
     private function cekDuplicate($query)
@@ -89,7 +89,9 @@ class metadataController extends Controller
             'video_title' => 'required',
             'video_description' => 'required',
             'video_genre' => 'required',
-            'privacy' => 'required'
+            'privacy' => 'required',
+            'category_id' => 'required',
+            'thumbnail' => 'required'
         ];
 
         $message = [
@@ -100,7 +102,7 @@ class metadataController extends Controller
         $result = $this->client->request('POST', $this->endpoint . 'content/metadata/store', [
             'form_params' => [
                 'user_id' => $request->user_id,
-                'category_id' => 'null',
+                'category_id' => $request->category_id,
                 'video_title' => $request->video_title,
                 'video_description' => $request->video_description,
                 'video_genre' => $request->video_genre,
@@ -110,6 +112,7 @@ class metadataController extends Controller
                 'video_downloads' => 0,
                 'privacy' => $request->privacy,
                 'metavideos' => [],
+                'thumbnail' => $request->thumbnail,
                 'subtitle' => [],
                 'comments' => [],
                 'likes' => [],
@@ -176,6 +179,7 @@ class metadataController extends Controller
         $video_description = isset($request->video_description) ? $request->video_description : $metadata['video_description'];
         $video_genre = isset($request->video_genre) ? $request->video_genre : $metadata['video_genre'];
         $privacy = isset($request->privacy) ? $request->privacy : $metadata['privacy'];
+        $thumbnail = isset($request->thumbnail) ? $request->thumbnail : $metadata['thumbnail'];
 
         $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
             'form_params' => [
@@ -183,7 +187,8 @@ class metadataController extends Controller
                 'video_title' => $video_title,
                 'video_description' => $video_description,
                 'video_genre' => $video_genre,
-                'privacy' => $privacy
+                'privacy' => $privacy,
+                'thumbnail' => $thumbnail
             ]
         ]);
 
