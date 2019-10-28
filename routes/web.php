@@ -14,12 +14,6 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
-$router->group(['prefix'=>'/conm/v1/category/'], function() use($router){
-	$router->get('{id}', 'ContentCategoryController@list');
-    	$router->post('search', 'ContentCategoryController@search_videos');
-	$router->post('add', 'ContentCategoryController@add');
-	$router->post('remove', 'ContentCategoryController@remove');
-});
 
 $router->group(['prefix' => '/conm/v1/'], function () use($router) {
     $router->get('/', 'metadataController@index');
@@ -32,4 +26,24 @@ $router->group(['prefix' => '/conm/v1/'], function () use($router) {
     $router->get('/save/{id}', 'metadataController@addSave');
     $router->get('/share/{id}', 'metadataController@addShare');
     $router->get('/view/{id}', 'metadataController@addViewer');
+});
+
+$router->group(['prefix' => '/conm/v1/comment/'], function() use($router) {
+    $router->get('/get/{id}', 'commentController@get');
+    $router->post('/add/{id}', 'commentController@add');
+    $router->post('/delete', 'commentController@destroy');
+    $router->post('/update', 'commentController@update');
+});
+
+$router->group(['prefix' => '/conm/v1/subtitle/'], function() use($router) {
+    $router->get('/get/{id}', 'subtitleController@get');
+    $router->post('/add/{id}', 'subtitleController@add');
+    $router->post('/delete', 'subtitleController@destroy');
+    $router->post('/update', 'subtitleController@update');
+});
+
+$router->group(['prefix' => '/conm/v1/react/'], function() use($router) {
+    $router->post('/add/{react}/{id}', 'reactController@add');
+    $router->get('/get/{react}/{id}', 'reactController@get');
+    $router->post('/delete/{react}', 'reactController@destroy');
 });
