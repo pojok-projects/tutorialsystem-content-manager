@@ -117,7 +117,7 @@ class commentController extends Controller
         $result = array_merge($comments, $comment);
         
         $data = $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
-            'form_params' => [
+            'json' => [
                 'comments' => $result
             ]
         ]);
@@ -199,7 +199,7 @@ class commentController extends Controller
         ]);
 
         $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$request->metadata_id", [
-            'form_params' => [
+            'json' => [
                 'comments' => array_merge($comments, $comment)
             ]
         ]);
@@ -267,7 +267,7 @@ class commentController extends Controller
         $comment = is_null($comment) ? [] : $comment;
 
         $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$request->metadata_id", [
-            'form_params' => [
+            'json' => [
                 'comments' => $comment
             ]
         ]);
