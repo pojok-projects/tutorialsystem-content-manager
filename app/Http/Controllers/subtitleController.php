@@ -113,7 +113,7 @@ class subtitleController extends Controller
         $result = array_merge($subtitles, $subtitle);
         
         $data = $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
-            'form_params' => [
+            'json' => [
                 'subtitle' => $result
             ]
         ]);
@@ -191,7 +191,7 @@ class subtitleController extends Controller
         ]);
 
         $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$request->metadata_id", [
-            'form_params' => [
+            'json' => [
                 'subtitle' => array_merge($subtitles, $subtitle)
             ]
         ]);
@@ -259,7 +259,7 @@ class subtitleController extends Controller
         $subtitle = array_merge([], $subtitle);
 
         $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$request->metadata_id", [
-            'form_params' => [
+            'json' => [
                 'subtitle' => $subtitle
             ]
         ]);
