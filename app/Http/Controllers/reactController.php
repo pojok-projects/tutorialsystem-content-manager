@@ -141,7 +141,7 @@ class reactController extends Controller
         $result = array_merge($reacts, $content);
         
         $data = $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
-            'form_params' => [
+            'json' => [
                 $react . 's' => $result
             ]
         ]);
@@ -227,7 +227,7 @@ class reactController extends Controller
         $reacts = array_merge([], $reacts);
 
         $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$request->metadata_id", [
-            'form_params' => [
+            'json' => [
                 $react . 's' => $reacts
             ]
         ]);
