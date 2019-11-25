@@ -24,7 +24,7 @@ class metadataController extends Controller
     private function cekDuplicate($query)
     {
         $result = $this->client->request('POST', $this->endpoint . 'content/metadata/search', [
-            'form_params' => [
+            'json' => [
                 'query' => urlencode($query)
             ]
         ]);
@@ -55,7 +55,7 @@ class metadataController extends Controller
         $res = $data[$param] + 1;
 
         $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
-            'form_params' => [
+            'json' => [
                 $param => $res
             ]
         ]);
@@ -100,7 +100,7 @@ class metadataController extends Controller
         $this->validate($request, $rules, $message);
 
         $result = $this->client->request('POST', $this->endpoint . 'content/metadata/store', [
-            'form_params' => [
+            'json' => [
                 'user_id' => $request->user_id,
                 'category_id' => $request->category_id,
                 'video_title' => $request->video_title,
@@ -182,7 +182,7 @@ class metadataController extends Controller
         $thumbnail = isset($request->thumbnail) ? $request->thumbnail : $metadata['thumbnail'];
 
         $result = $this->client->request('POST', $this->endpoint . "content/metadata/update/$id", [
-            'form_params' => [
+            'json' => [
                 'user_id' => $metadata['user_id'],
                 'video_title' => $video_title,
                 'video_description' => $video_description,
